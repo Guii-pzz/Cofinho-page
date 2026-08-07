@@ -1,0 +1,979 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Cofrinho | Simulador Financeiro Pessoal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="toast-container"></div>
+
+<div class="app">
+
+  <header class="top">
+    <div class="brand">
+      <div class="logo"><i class="fa-solid fa-wallet"></i></div>
+      <div>
+        <h1>Cofrinho</h1>
+        <p>Simulador financeiro pessoal</p>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="demo-badge hidden" id="demoBadge">
+        <i class="fa-solid fa-flask"></i> Modo Demo
+        <button type="button" onclick="sairDoModoDemo()" title="Sair do modo demo e restaurar seus dados">
+          <i class="fa-solid fa-xmark"></i> Sair
+        </button>
+      </div>
+      <button class="btn btn-ghost" onclick="abrirTour()" title="Ver tour de boas-vindas">
+        <i class="fa-solid fa-circle-question"></i> <span class="btn-text">Ajuda</span>
+      </button>
+      <button class="btn btn-export" onclick="abrirModalExportar()" title="Baixar relatório em PDF">
+        <i class="fa-solid fa-file-pdf"></i> <span class="btn-text">Exportar PDF</span>
+      </button>
+      <button class="btn btn-ghost" onclick="carregarDadosDemo()" title="Carregar dados de exemplo" id="btnCarregarDemo">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> <span class="btn-text">Demo</span>
+      </button>
+      <button class="btn btn-ghost" onclick="abrirModalLimpar()" title="Limpar todos os dados">
+        <i class="fa-solid fa-rotate-left"></i> <span class="btn-text">Reiniciar</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- NAVEGAÇÃO POR ABAS -->
+  <nav class="tabnav" aria-label="Navegação principal">
+    <button type="button" class="active" data-tab="dashboard" onclick="mudarAba('dashboard')">
+      <i class="fa-solid fa-chart-pie"></i><span class="tab-label">Dashboard</span>
+    </button>
+    <button type="button" data-tab="financas" onclick="mudarAba('financas')">
+      <i class="fa-solid fa-wallet"></i><span class="tab-label">Finanças</span>
+    </button>
+    <button type="button" data-tab="simulador" onclick="mudarAba('simulador')">
+      <i class="fa-solid fa-seedling"></i><span class="tab-label">Simulador</span>
+    </button>
+    <button type="button" data-tab="metas" onclick="mudarAba('metas')">
+      <i class="fa-solid fa-bullseye"></i><span class="tab-label">Metas</span>
+    </button>
+    <button type="button" data-tab="historico" onclick="mudarAba('historico')">
+      <i class="fa-solid fa-clock-rotate-left"></i><span class="tab-label">Histórico</span>
+    </button>
+    <button type="button" data-tab="ia" onclick="mudarAba('ia')">
+      <i class="fa-solid fa-robot"></i><span class="tab-label">IA</span>
+    </button>
+    <button type="button" data-tab="config" onclick="mudarAba('config')">
+      <i class="fa-solid fa-gear"></i><span class="tab-label">Config.</span>
+    </button>
+  </nav>
+
+  <!-- =========================================================
+       PÁGINA: DASHBOARD
+       ========================================================= -->
+  <div class="page active" id="page-dashboard">
+
+    <section class="hero-grid">
+      <div class="hero-card">
+        <i class="fa-solid fa-sack-dollar h-icon"></i>
+        <div class="h-label">Total investido</div>
+        <div class="h-value" id="dashTotalInvestido">R$ 0,00</div>
+        <div class="h-sub" id="dashTotalInvestidoSub">Acumulado + aportes</div>
+      </div>
+      <div class="hero-card alt">
+        <i class="fa-solid fa-chart-line h-icon"></i>
+        <div class="h-label">Patrimônio projetado</div>
+        <div class="h-value" id="dashPatrimonioProjetado">R$ 0,00</div>
+        <div class="h-sub" id="dashPatrimonioProjetadoSub">Em 12 meses</div>
+      </div>
+      <div class="hero-card gold">
+        <i class="fa-solid fa-hand-holding-dollar h-icon"></i>
+        <div class="h-label">Total de rendimentos</div>
+        <div class="h-value" id="dashRendimentos">R$ 0,00</div>
+        <div class="h-sub" id="dashRendimentosSub">Projetado no período</div>
+      </div>
+      <div class="hero-card dark">
+        <i class="fa-solid fa-calendar-check h-icon"></i>
+        <div class="h-label">Aporte mensal</div>
+        <div class="h-value" id="dashAporteMensal">R$ 0,00</div>
+        <div class="h-sub" id="dashAporteMensalSub">Próximo aporte</div>
+      </div>
+    </section>
+
+    <div class="dash-grid">
+      <div>
+        <div class="chart-card">
+          <h2><i class="fa-solid fa-chart-area"></i> Evolução do patrimônio</h2>
+          <div class="chart-wrap" id="chartPatrimonioWrap">
+            <canvas id="chartPatrimonio"></canvas>
+          </div>
+        </div>
+        <div class="chart-card">
+          <h2><i class="fa-solid fa-scale-balanced"></i> Investido x Rendimentos</h2>
+          <div class="chart-wrap small" id="chartComparativoWrap">
+            <canvas id="chartComparativo"></canvas>
+          </div>
+        </div>
+      </div>
+      <div>
+        <div class="chart-card" id="dashResumoMetasCard">
+          <h2><i class="fa-solid fa-bullseye"></i> Metas em andamento</h2>
+          <div id="dashMetaPrincipal"></div>
+          <div class="dash-metas-list" id="dashResumoMetas"></div>
+        </div>
+        <div class="chart-card">
+          <h2><i class="fa-solid fa-list-check"></i> Resumo rápido</h2>
+          <div class="next-aporte-card">
+            <i class="fa-solid fa-calendar-day"></i>
+            <div>
+              <div class="lbl">Próximo aporte sugerido</div>
+              <div class="val" id="dashProximoAporte">R$ 0,00</div>
+            </div>
+          </div>
+          <div class="resumo-list">
+            <div class="resumo-item">
+              <span class="lbl">Renda total</span>
+              <span class="val" id="dashRendaTotalMini">R$ 0,00</span>
+            </div>
+            <div class="resumo-item">
+              <span class="lbl">Despesas</span>
+              <span class="val" id="dashDespesasMini">R$ 0,00</span>
+            </div>
+            <div class="resumo-item saldo">
+              <span class="lbl">Saldo livre</span>
+              <span class="val" id="dashSaldoMini">R$ 0,00</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PÁGINA: FINANÇAS
+       ========================================================= -->
+  <div class="page" id="page-financas">
+
+  <div class="health-banner neutral" id="healthBanner">
+    <i class="fa-solid fa-circle-info"></i>
+    <span id="healthBannerText">Informe seu salário e cadastre despesas para ver sua saúde financeira.</span>
+  </div>
+
+  <div class="budget-bar-wrap" id="budgetBarWrap">
+    <div class="budget-bar-header">
+      <span>Comprometimento da renda</span>
+      <strong id="budgetPercent">0%</strong>
+    </div>
+    <div class="budget-track">
+      <div class="budget-fill" id="budgetFill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- CARDS DE INDICADORES -->
+  <section class="cards-grid">
+    <div class="indicator-card">
+      <div class="icon-badge blue"><i class="fa-solid fa-money-bill-wave"></i></div>
+      <div class="label">Renda total</div>
+      <div class="value" id="cardSalario">R$ 0,00</div>
+      <div class="sub" id="cardRendaSub">Apenas salário</div>
+    </div>
+    <div class="indicator-card">
+      <div class="icon-badge green"><i class="fa-solid fa-arrow-trend-up"></i></div>
+      <div class="label">Outras entradas</div>
+      <div class="value" id="cardEntradas">R$ 0,00</div>
+      <div class="sub" id="cardEntradasSub">Nenhuma entrada extra</div>
+    </div>
+    <div class="indicator-card">
+      <div class="icon-badge red"><i class="fa-solid fa-receipt"></i></div>
+      <div class="label">Total de despesas</div>
+      <div class="value" id="cardDespesas">R$ 0,00</div>
+      <div class="sub" id="cardDespesasSub">0 contas</div>
+    </div>
+    <div class="indicator-card">
+      <div class="icon-badge orange"><i class="fa-solid fa-sack-dollar"></i></div>
+      <div class="label">Disponível</div>
+      <div class="value" id="cardDisponivel">R$ 0,00</div>
+      <div class="sub" id="cardDisponivelSub">Livre para gastar</div>
+    </div>
+  </section>
+
+  <div class="main-grid">
+
+    <!-- SALÁRIO -->
+    <div class="panel">
+      <h2><i class="fa-solid fa-coins"></i> Salário mensal</h2>
+      <div class="field">
+        <label for="inputMesReferencia">Mês de referência <span class="optional">(opcional)</span></label>
+        <input type="month" id="inputMesReferencia">
+      </div>
+      <div class="field">
+        <label for="inputSalario">Informe seu salário</label>
+        <input type="number" id="inputSalario" placeholder="Ex: 5000.00" min="0" step="0.01"
+               onkeydown="if(event.key==='Enter') salvarSalario()">
+      </div>
+      <button class="btn btn-primary" onclick="salvarSalario()">
+        <i class="fa-solid fa-floppy-disk"></i> Salvar salário
+      </button>
+      <div class="salario-display">
+        <div>
+          <div class="lbl">Salário atual</div>
+          <div class="val" id="salarioAtualDisplay">R$ 0,00</div>
+          <div class="mes-badge hidden" id="mesReferenciaDisplay">
+            <i class="fa-solid fa-calendar"></i> <span id="mesReferenciaTexto"></span>
+          </div>
+        </div>
+        <i class="fa-solid fa-circle-dollar-to-slot"></i>
+      </div>
+    </div>
+
+    <!-- OUTRAS ENTRADAS -->
+    <div class="panel">
+      <h2><i class="fa-solid fa-arrow-trend-up"></i> Outras entradas</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.45;">
+        Registre dinheiro que entrou além do salário: freelance, bônus, vendas, presentes, etc.
+      </p>
+      <div class="field">
+        <label for="entradaNome">Descrição</label>
+        <input type="text" id="entradaNome" placeholder="Ex: Freelance, 13º, venda"
+               onkeydown="if(event.key==='Enter') adicionarEntrada()">
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="entradaValor">Valor</label>
+          <input type="number" id="entradaValor" placeholder="Ex: 800.00" min="0.01" step="0.01"
+                 onkeydown="if(event.key==='Enter') adicionarEntrada()">
+        </div>
+        <div class="field">
+          <label for="entradaData">Data <span class="optional">(opcional)</span></label>
+          <input type="date" id="entradaData">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="adicionarEntrada()">
+        <i class="fa-solid fa-plus"></i> Adicionar entrada
+      </button>
+      <div class="entrada-display">
+        <div>
+          <div class="lbl">Total além do salário</div>
+          <div class="val" id="totalEntradasDisplay">R$ 0,00</div>
+        </div>
+        <i class="fa-solid fa-hand-holding-dollar"></i>
+      </div>
+      <div class="entradas-lista" id="listaEntradas"></div>
+      <div class="empty-state hidden" id="emptyEntradas" style="padding:20px 12px;">
+        <i class="fa-solid fa-inbox" style="font-size:28px;"></i>
+        <p>Nenhuma entrada extra ainda.</p>
+        <small>Cadastre valores que entraram além do salário.</small>
+      </div>
+    </div>
+
+    <!-- RESUMO FINANCEIRO -->
+    <div class="panel full-width">
+      <h2><i class="fa-solid fa-chart-pie"></i> Resumo financeiro</h2>
+      <div class="resumo-list">
+        <div class="resumo-item">
+          <span class="lbl">Salário</span>
+          <span class="val" id="resumoSalario">R$ 0,00</span>
+        </div>
+        <div class="resumo-item entrada">
+          <span class="lbl">Outras entradas</span>
+          <span class="val" id="resumoEntradas">R$ 0,00</span>
+        </div>
+        <div class="resumo-item renda-total">
+          <span class="lbl">Renda total</span>
+          <span class="val" id="resumoRendaTotal">R$ 0,00</span>
+        </div>
+        <div class="resumo-item">
+          <span class="lbl">Total de despesas</span>
+          <span class="val" id="resumoDespesas">R$ 0,00</span>
+        </div>
+        <div class="resumo-item saldo" id="resumoSaldoItem">
+          <span class="lbl">Saldo restante</span>
+          <span class="val" id="resumoSaldo">R$ 0,00</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CADASTRO DE DESPESAS -->
+    <div class="panel full-width">
+      <h2><i class="fa-solid fa-file-invoice-dollar"></i> Cadastrar despesa</h2>
+      <div class="row-2">
+        <div class="field">
+          <label for="despesaNome">Nome da conta</label>
+          <input type="text" id="despesaNome" placeholder="Ex: Aluguel"
+                 onkeydown="if(event.key==='Enter') adicionarDespesa()">
+        </div>
+        <div class="field">
+          <label for="despesaValor">Valor</label>
+          <input type="number" id="despesaValor" placeholder="Ex: 1200.00" min="0.01" step="0.01"
+                 onkeydown="if(event.key==='Enter') adicionarDespesa()">
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="despesaPagamento">Forma de pagamento</label>
+          <select id="despesaPagamento">
+            <option value="Débito">Débito</option>
+            <option value="Crédito">Crédito</option>
+            <option value="PIX">PIX</option>
+            <option value="Dinheiro">Dinheiro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="despesaStatus">Status</label>
+          <select id="despesaStatus">
+            <option value="Pendente">Pendente</option>
+            <option value="Pago">Pago</option>
+          </select>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="despesaVencimento">Data de vencimento <span class="optional">(opcional)</span></label>
+          <input type="date" id="despesaVencimento">
+        </div>
+        <div class="field">
+          <label for="despesaDataPagamento">Dia do pagamento <span class="optional">(opcional)</span></label>
+          <input type="date" id="despesaDataPagamento">
+        </div>
+      </div>
+      <div class="field" style="margin-bottom:0;">
+        <button class="btn btn-primary" onclick="adicionarDespesa()">
+          <i class="fa-solid fa-plus"></i> Adicionar despesa
+        </button>
+      </div>
+    </div>
+
+    <!-- LISTA DE DESPESAS -->
+    <div class="panel full-width">
+      <div class="panel-header-row">
+        <h2><i class="fa-solid fa-list-ul"></i> Minhas despesas</h2>
+        <button class="btn btn-export" onclick="abrirModalExportar()" title="Baixar relatório em PDF">
+          <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+        </button>
+      </div>
+      <div class="despesas-content" id="despesasContent">
+        <div class="table-wrapper table-desktop">
+          <table>
+            <thead>
+              <tr>
+                <th>Nome</th>
+                <th>Valor</th>
+                <th>Pagamento</th>
+                <th>Vencimento</th>
+                <th>Dia pagamento</th>
+                <th>Status</th>
+                <th style="text-align:center;">Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaDespesas"></tbody>
+          </table>
+        </div>
+        <div class="despesas-mobile" id="listaDespesasMobile"></div>
+        <div class="empty-state hidden" id="emptyState">
+          <i class="fa-solid fa-inbox"></i>
+          <p>Nenhuma despesa cadastrada ainda.</p>
+          <small>Adicione contas acima ou use o botão <strong>Demo</strong> para ver o simulador em ação.</small>
+        </div>
+      </div>
+      <div class="total-despesas-bar">
+        <span>Total das despesas</span>
+        <span class="val" id="totalDespesasFooter">R$ 0,00</span>
+      </div>
+    </div>
+
+  </div><!-- /main-grid -->
+  </div><!-- /page-financas -->
+
+  <!-- =========================================================
+       PÁGINA: SIMULADOR
+       ========================================================= -->
+  <div class="page" id="page-simulador">
+    <div class="panel full-width" id="painelValorInvestido">
+      <h2><i class="fa-solid fa-piggy-bank"></i> Valor já investido</h2>
+      <p style="font-size:13px;color:var(--text-muted);margin-bottom:14px;line-height:1.45;">
+        Informe quanto você já tem investido hoje. Esse valor entra na projeção de patrimônio junto com seus aportes mensais.
+      </p>
+      <div class="row-2">
+        <div class="field">
+          <label for="inputValorInvestidoAtual" class="label-tip">Valor já investido
+            <span class="tip-icon">i<span class="tip-bubble">Soma de tudo que você já tem aplicado hoje (renda fixa, tesouro, ações, etc).</span></span>
+          </label>
+          <input type="text" inputmode="decimal" id="inputValorInvestidoAtual" placeholder="Ex: 3.500,00" data-money
+                 onkeydown="if(event.key==='Enter') salvarValorInvestidoAtual()">
+        </div>
+        <div class="field">
+          <label for="inputTaxaRentabilidade" class="label-tip">Rentabilidade mensal estimada
+            <span class="tip-icon">i<span class="tip-bubble">Taxa média mensal esperada para seus investimentos, em %. Ex: 0,8 para ~10% ao ano.</span></span>
+          </label>
+          <input type="number" id="inputTaxaRentabilidade" placeholder="Ex: 0.8" min="0" max="20" step="0.01"
+                 onkeydown="if(event.key==='Enter') salvarValorInvestidoAtual()">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="salvarValorInvestidoAtual()">
+        <i class="fa-solid fa-floppy-disk"></i> Salvar valores
+      </button>
+      <div class="salario-display" style="margin-top:14px;">
+        <div>
+          <div class="lbl">Valor já investido</div>
+          <div class="val" id="valorInvestidoAtualDisplay">R$ 0,00</div>
+        </div>
+        <i class="fa-solid fa-piggy-bank"></i>
+      </div>
+    </div>
+
+    <div class="panel full-width">
+      <h2><i class="fa-solid fa-seedling"></i> Simulador de investimento mensal</h2>
+      <div id="investAtivo">
+        <div class="invest-header">
+          <span>Percentual investido do saldo restante</span>
+          <span class="perc" id="percInvestimento">0%</span>
+        </div>
+        <input type="range" id="sliderInvestimento" min="0" max="100" step="1" value="0" oninput="atualizarInvestimento()">
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="invest-results">
+          <div class="invest-box investido">
+            <div class="lbl">Valor investido por mês</div>
+            <div class="val" id="valorInvestido">R$ 0,00</div>
+          </div>
+          <div class="invest-box disponivel">
+            <div class="lbl">Disponível para gastar</div>
+            <div class="val" id="valorDisponivelInvest">R$ 0,00</div>
+          </div>
+        </div>
+      </div>
+      <div class="invest-disabled-msg hidden" id="investDesativado">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+        <strong>Simulador indisponível</strong>
+        <span id="investDesativadoTexto">Não há saldo restante disponível para simular investimento.</span>
+      </div>
+    </div>
+
+    <div class="panel full-width">
+      <h2><i class="fa-solid fa-chart-area"></i> Projeção de crescimento</h2>
+      <div class="row-2">
+        <div class="field">
+          <label for="inputPeriodoProjecao" class="label-tip">Período de projeção (meses)
+            <span class="tip-icon">i<span class="tip-bubble">Quantos meses à frente o gráfico deve simular, considerando aporte mensal e rentabilidade.</span></span>
+          </label>
+          <input type="number" id="inputPeriodoProjecao" min="1" max="480" step="1" value="12" oninput="atualizarDashboard()">
+        </div>
+      </div>
+      <div class="chart-wrap" id="chartProjecaoWrap">
+        <canvas id="chartProjecao"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PÁGINA: METAS
+       ========================================================= -->
+  <div class="page" id="page-metas">
+    <div class="panel full-width" id="painelNovaMeta">
+      <h2><i class="fa-solid fa-bullseye"></i> Nova meta financeira</h2>
+      <div class="row-2">
+        <div class="field">
+          <label for="metaNome">Nome da meta</label>
+          <input type="text" id="metaNome" placeholder="Ex: Comprar carro" onkeydown="if(event.key==='Enter') adicionarMeta()">
+        </div>
+        <div class="field">
+          <label for="metaIcone">Categoria</label>
+          <select id="metaIcone">
+            <option value="fa-car">🚗 Carro</option>
+            <option value="fa-house">🏠 Casa</option>
+            <option value="fa-plane">✈️ Viagem</option>
+            <option value="fa-graduation-cap">🎓 Estudos</option>
+            <option value="fa-umbrella-beach">🏖️ Férias</option>
+            <option value="fa-heart-pulse">🩺 Emergência</option>
+            <option value="fa-laptop">💻 Notebook</option>
+            <option value="fa-mobile-screen">📱 Celular</option>
+            <option value="fa-gift">🎁 Presente</option>
+            <option value="fa-piggy-bank">🐷 Outro</option>
+          </select>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="metaValorObjetivo">Valor objetivo</label>
+          <input type="text" inputmode="decimal" id="metaValorObjetivo" placeholder="Ex: 10.000,00" data-money onkeydown="if(event.key==='Enter') adicionarMeta()">
+        </div>
+        <div class="field">
+          <label for="metaValorAtual">Valor atual <span class="optional">(opcional)</span></label>
+          <input type="text" inputmode="decimal" id="metaValorAtual" placeholder="Ex: 1.000,00" data-money onkeydown="if(event.key==='Enter') adicionarMeta()">
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label for="metaData">Data prevista <span class="optional">(opcional)</span></label>
+          <input type="date" id="metaData">
+        </div>
+        <div class="field">
+          <label for="metaDescricao">Descrição <span class="optional">(opcional)</span></label>
+          <input type="text" id="metaDescricao" placeholder="Ex: Entrada do financiamento" onkeydown="if(event.key==='Enter') adicionarMeta()">
+        </div>
+      </div>
+      <button class="btn btn-primary" onclick="adicionarMeta()">
+        <i class="fa-solid fa-plus"></i> Criar meta
+      </button>
+    </div>
+
+    <div class="panel full-width" style="background:transparent;box-shadow:none;border:none;backdrop-filter:none;padding:0;">
+      <div class="metas-grid" id="metasGrid"></div>
+      <div class="empty-state hidden" id="emptyMetas">
+        <i class="fa-solid fa-bullseye"></i>
+        <p>Nenhuma meta cadastrada ainda.</p>
+        <small>Crie sua primeira meta acima e acompanhe o progresso por aqui.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PÁGINA: HISTÓRICO
+       ========================================================= -->
+  <div class="page" id="page-historico">
+    <!-- HISTÓRICO FINANCEIRO -->
+    <div class="panel full-width">
+      <div class="panel-header-row">
+        <h2><i class="fa-solid fa-clock-rotate-left"></i> Histórico financeiro</h2>
+      </div>
+      <div class="historico-toolbar">
+        <p class="hint">Arquive o mês atual para comparar depois. A visualização mensal ou anual não altera o mês em edição acima.</p>
+        <div class="historico-actions">
+          <div class="view-toggle" role="group" aria-label="Tipo de visualização do histórico">
+            <button type="button" id="btnVistaMensal" class="active" onclick="definirVistaHistorico('mensal')">Mensal</button>
+            <button type="button" id="btnVistaAnual" onclick="definirVistaHistorico('anual')">Anual</button>
+          </div>
+          <button class="btn btn-primary btn-arquivar" onclick="arquivarMesAtual()">
+            <i class="fa-solid fa-box-archive"></i> Arquivar mês
+          </button>
+        </div>
+      </div>
+      <div class="historico-grid" id="historicoGrid"></div>
+      <div class="empty-state hidden" id="emptyHistorico">
+        <i class="fa-solid fa-calendar-days"></i>
+        <p>Nenhum mês arquivado ainda.</p>
+        <small>Preencha o mês de referência, cadastre seus dados e clique em <strong>Arquivar mês</strong>.</small>
+      </div>
+    </div>
+
+    <!-- ATIVIDADE RECENTE -->
+    <div class="panel full-width">
+      <div class="panel-header-row">
+        <h2><i class="fa-solid fa-list-check"></i> Atividade recente</h2>
+      </div>
+      <p class="hint" style="margin-bottom:6px;">Registro automático de alterações de aporte, metas e valores.</p>
+      <div class="activity-list" id="listaAtividades"></div>
+      <div class="empty-state hidden" id="emptyAtividades">
+        <i class="fa-solid fa-inbox"></i>
+        <p>Nenhuma atividade registrada ainda.</p>
+        <small>Suas alterações de aporte, metas e valores aparecerão aqui.</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PÁGINA: IA DO COFRINHO
+       ========================================================= -->
+  <div class="page" id="page-ia">
+    <div class="panel full-width ia-panel">
+      <div class="ia-header">
+        <div class="ia-logo-icon"><i class="fa-solid fa-robot"></i></div>
+        <div>
+          <h2 style="margin-bottom:4px;"><i class="fa-solid fa-robot"></i> IA do Cofrinho</h2>
+          <p class="ia-subtitle">Assistente financeiro inteligente com acesso aos seus dados. Faça perguntas, simule cenários e tire dúvidas.</p>
+        </div>
+      </div>
+
+      <div class="ia-no-key hidden" id="iaNoKey">
+        <i class="fa-solid fa-key"></i>
+        <strong>Chave de API não configurada</strong>
+        <span>Vá em <strong>Configurações</strong> e insira sua chave OpenAI para usar a IA do Cofrinho.</span>
+        <button class="btn btn-primary" style="width:auto;margin-top:6px;" onclick="mudarAba('config')"><i class="fa-solid fa-gear"></i> Ir para Configurações</button>
+      </div>
+
+      <div class="ia-chat-container" id="iaChatContainer">
+        <div class="ia-welcome" id="iaWelcome">
+          <div class="ia-welcome-icon"><i class="fa-solid fa-robot"></i></div>
+          <div class="ia-welcome-title">Olá! Sou a IA do Cofrinho 👋</div>
+          <div class="ia-welcome-text">Estou conectada aos seus dados financeiros. Experimente perguntar:</div>
+          <div class="ia-suggestions">
+            <button class="ia-suggestion" onclick="usarSugestao('Em quanto tempo alcanço minha meta principal com o aporte mensal atual?')">⏱️ Em quanto tempo alcanço minha meta?</button>
+            <button class="ia-suggestion" onclick="usarSugestao('Analise minha saúde financeira com base nos meus dados atuais.')">💊 Analise minha saúde financeira</button>
+            <button class="ia-suggestion" onclick="usarSugestao('Se eu economizar mais R$ 200 por mês, como isso impacta meu patrimônio em 2 anos?')">📈 Impacto de economizar R$ 200/mês</button>
+            <button class="ia-suggestion" onclick="usarSugestao('Quais despesas eu deveria cortar para melhorar meu saldo?')">✂️ O que posso cortar nas despesas?</button>
+          </div>
+        </div>
+        <div class="ia-messages" id="iaMessages"></div>
+      </div>
+
+      <div class="ia-input-row" id="iaInputRow">
+        <textarea id="iaInput" class="ia-input" placeholder="Faça uma pergunta financeira... (Enter para enviar)" rows="1"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemIA();}"></textarea>
+        <button class="ia-send-btn" id="iaSendBtn" onclick="enviarMensagemIA()" title="Enviar">
+          <i class="fa-solid fa-paper-plane"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================
+       PÁGINA: CONFIGURAÇÕES
+       ========================================================= -->
+  <div class="page" id="page-config">
+    <div class="panel full-width">
+      <h2><i class="fa-solid fa-palette"></i> Personalização de cores</h2>
+      <div class="config-color-section">
+        <div class="config-color-group">
+          <div class="config-color-label"><i class="fa-solid fa-circle-half-stroke"></i> Cor primária</div>
+          <div class="color-chips" id="colorChipsPrimary">
+            <button class="color-chip active" data-primary="#0f766e" data-primary-mid="#14b8a6" data-primary-dark="#0d5c56" data-primary-light="#e6f7f5" style="background:#0f766e" title="Teal (padrão)"></button>
+            <button class="color-chip" data-primary="#7c3aed" data-primary-mid="#a78bfa" data-primary-dark="#5b21b6" data-primary-light="#ede9fe" style="background:#7c3aed" title="Roxo"></button>
+            <button class="color-chip" data-primary="#1d4ed8" data-primary-mid="#60a5fa" data-primary-dark="#1e40af" data-primary-light="#dbeafe" style="background:#1d4ed8" title="Azul"></button>
+            <button class="color-chip" data-primary="#be185d" data-primary-mid="#f472b6" data-primary-dark="#9d174d" data-primary-light="#fce7f3" style="background:#be185d" title="Rosa"></button>
+            <button class="color-chip" data-primary="#b45309" data-primary-mid="#fbbf24" data-primary-dark="#92400e" data-primary-light="#fffbeb" style="background:#b45309" title="Laranja"></button>
+            <button class="color-chip" data-primary="#047857" data-primary-mid="#34d399" data-primary-dark="#065f46" data-primary-light="#ecfdf5" style="background:#047857" title="Verde"></button>
+            <button class="color-chip" data-primary="#e11d48" data-primary-mid="#fb7185" data-primary-dark="#9f1239" data-primary-light="#fff1f2" style="background:#e11d48" title="Vermelho"></button>
+            <button class="color-chip" data-primary="#0369a1" data-primary-mid="#38bdf8" data-primary-dark="#075985" data-primary-light="#e0f2fe" style="background:#0369a1" title="Azul Ciano"></button>
+          </div>
+        </div>
+        <div class="config-color-group">
+          <div class="config-color-label"><i class="fa-solid fa-moon"></i> Fundo do app</div>
+          <div class="color-chips" id="colorChipsBg">
+            <button class="color-chip-bg active" data-bg="#f3f6f5" data-bg-accent="#e8efed" data-card-bg="rgba(255,255,255,0.88)" data-card-solid="#ffffff" style="background:linear-gradient(135deg,#f3f6f5,#e8efed)" title="Claro (padrão)"></button>
+            <button class="color-chip-bg" data-bg="#0f172a" data-bg-accent="#1e293b" data-card-bg="rgba(30,41,59,0.95)" data-card-solid="#1e293b" style="background:linear-gradient(135deg,#0f172a,#1e293b)" title="Escuro (Dark)"></button>
+            <button class="color-chip-bg" data-bg="#fdf8f0" data-bg-accent="#f5ede0" data-card-bg="rgba(255,252,245,0.92)" data-card-solid="#fffcf5" style="background:linear-gradient(135deg,#fdf8f0,#f5ede0)" title="Bege"></button>
+            <button class="color-chip-bg" data-bg="#f0f4ff" data-bg-accent="#e0e9ff" data-card-bg="rgba(240,244,255,0.92)" data-card-solid="#f8faff" style="background:linear-gradient(135deg,#f0f4ff,#e0e9ff)" title="Azul claro"></button>
+            <button class="color-chip-bg" data-bg="#f0fdf4" data-bg-accent="#dcfce7" data-card-bg="rgba(240,253,244,0.92)" data-card-solid="#f7fdf9" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)" title="Verde claro"></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel full-width">
+      <h2><i class="fa-solid fa-robot"></i> IA do Cofrinho</h2>
+      <div class="config-list">
+        <div class="field">
+          <label for="configProvedor">Provedor de IA</label>
+          <select id="configProvedor" onchange="atualizarUIProvedor()">
+            <option value="groq">⚡ Groq — GRATUITO, ultra-rápido (Llama 3.3)</option>
+            <option value="gemini">🔵 Google Gemini — GRATUITO (requer projeto ativo)</option>
+          </select>
+        </div>
+        <div class="config-item">
+          <div class="info">
+            <div class="t" id="iaKeyLabel">Chave da API Groq</div>
+            <div class="d" id="iaKeyDesc">100% gratuita! Obtenha em <a id="iaKeyLink" href="https://console.groq.com/keys" target="_blank" rel="noopener">console.groq.com</a> — sem cartão de crédito.</div>
+          </div>
+        </div>
+        <div class="field">
+          <label for="configApiKey" id="iaKeyFieldLabel">Chave Groq (gsk_...)</label>
+          <input type="password" id="configApiKey" placeholder="gsk_..." autocomplete="off">
+          <span class="field-hint">🔒 Salva apenas no seu navegador. Não compartilhe este valor.</span>
+        </div>
+        <div class="field">
+          <label for="configModelo">Modelo</label>
+          <select id="configModelo">
+            <option value="llama-3.3-70b-versatile">(Recomendado) llama-3.3-70b — inteligente e gratuito</option>
+            <option value="llama-3.1-8b-instant">llama-3.1-8b — ultra rápido</option>
+            <option value="mixtral-8x7b-32768">mixtral-8x7b — alternativa gratuita</option>
+          </select>
+        </div>
+        <div class="field" style="margin-bottom:0">
+          <button class="btn btn-primary" onclick="salvarConfigIA()"><i class="fa-solid fa-floppy-disk"></i> Salvar configurações da IA</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel full-width">
+      <h2><i class="fa-solid fa-gear"></i> Dados e ações</h2>
+      <div class="config-list">
+        <div class="config-item" id="configExportarItem">
+          <div class="info">
+            <div class="t">Exportar relatório em PDF</div>
+            <div class="d">Gere um PDF com resumo, despesas, entradas e histórico.</div>
+          </div>
+          <button class="btn btn-export" onclick="abrirModalExportar()">
+            <i class="fa-solid fa-file-pdf"></i> Exportar PDF
+          </button>
+        </div>
+        <div class="config-item">
+          <div class="info">
+            <div class="t">Carregar dados de exemplo</div>
+            <div class="d">Preenche o app com dados fictícios para você explorar os recursos.</div>
+          </div>
+          <button class="btn btn-ghost" onclick="carregarDadosDemo()">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> Carregar demo
+          </button>
+        </div>
+        <div class="config-item danger">
+          <div class="info">
+            <div class="t">Reiniciar todos os dados</div>
+            <div class="d">Apaga salário, entradas, despesas, metas, histórico e configurações.</div>
+          </div>
+          <button class="btn btn-ghost" onclick="abrirModalLimpar()">
+            <i class="fa-solid fa-rotate-left"></i> Reiniciar
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RODAPÉ / MARCA D'ÁGUA -->
+  <footer class="app-footer">
+    <span>Desenvolvido por <strong>Guilherme da Paz</strong></span>
+    <span class="app-footer-sep">•</span>
+    <a href="mailto:guilhermepaz183@gmail.com">guilhermepaz183@gmail.com</a>
+    <span class="app-footer-sep">•</span>
+    <a href="https://www.linkedin.com/in/guilhermedpaz/" target="_blank" rel="noopener noreferrer">
+      <i class="fa-brands fa-linkedin"></i> linkedin.com/in/guilhermedpaz
+    </a>
+  </footer>
+
+</div>
+
+<!-- MODAL DE EDIÇÃO -->
+<div class="modal-overlay hidden" id="modalEditar" role="dialog" aria-modal="true" aria-labelledby="modalEditarTitulo">
+  <div class="modal-box">
+    <h3 id="modalEditarTitulo"><i class="fa-solid fa-pen"></i> Editar despesa</h3>
+    <input type="hidden" id="editId">
+    <div class="field">
+      <label for="editNome">Nome da conta</label>
+      <input type="text" id="editNome">
+    </div>
+    <div class="field">
+      <label for="editValor">Valor</label>
+      <input type="number" id="editValor" min="0.01" step="0.01">
+    </div>
+    <div class="field">
+      <label for="editPagamento">Forma de pagamento</label>
+      <select id="editPagamento">
+        <option value="Débito">Débito</option>
+        <option value="Crédito">Crédito</option>
+        <option value="PIX">PIX</option>
+        <option value="Dinheiro">Dinheiro</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editVencimento">Data de vencimento <span class="optional">(opcional)</span></label>
+      <input type="date" id="editVencimento">
+    </div>
+    <div class="field">
+      <label for="editDataPagamento">Dia do pagamento <span class="optional">(opcional)</span></label>
+      <input type="date" id="editDataPagamento">
+    </div>
+    <div class="field">
+      <label for="editStatus">Status</label>
+      <select id="editStatus">
+        <option value="Pendente">Pendente</option>
+        <option value="Pago">Pago</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModalEdicao()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoDespesa()">Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE EXPORTAÇÃO PDF -->
+<div class="modal-overlay hidden" id="modalExportar" role="dialog" aria-modal="true" aria-labelledby="modalExportarTitulo">
+  <div class="modal-box">
+    <h3 id="modalExportarTitulo"><i class="fa-solid fa-file-pdf"></i> Exportar PDF</h3>
+    <div class="field">
+      <label for="exportMes">Mês de referência <span class="optional">(opcional)</span></label>
+      <input type="month" id="exportMes">
+      <span class="field-hint">Exibe no cabeçalho do PDF, ex: "Julho de 2026". Deixe em branco para omitir.</span>
+    </div>
+    <div class="field">
+      <label>Orientação da página</label>
+      <div class="orient-options">
+        <label class="orient-card">
+          <input type="radio" name="exportOrient" value="portrait" checked>
+          <i class="fa-solid fa-mobile-screen-button"></i>
+          <span>Vertical (retrato)</span>
+        </label>
+        <label class="orient-card">
+          <input type="radio" name="exportOrient" value="landscape">
+          <i class="fa-solid fa-laptop"></i>
+          <span>Horizontal (paisagem)</span>
+        </label>
+      </div>
+      <span class="field-hint">Paisagem é ideal para tabelas com muitas colunas. Retrato funciona bem para resumos.</span>
+    </div>
+    <div class="field" style="margin-bottom:0;">
+      <label class="check-field" for="exportHistorico">
+        <input type="checkbox" id="exportHistorico" checked>
+        <span class="check-text">
+          Incluir histórico consolidado
+          <small>Adiciona tabela mês a mês com totais anuais no PDF.</small>
+        </span>
+      </label>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModalExportar()">Cancelar</button>
+      <button class="btn btn-primary" onclick="gerarPDF()">
+        <i class="fa-solid fa-download"></i> Gerar PDF
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE CONFIRMAÇÃO -->
+<div class="modal-overlay hidden" id="modalConfirmar" role="dialog" aria-modal="true" aria-labelledby="modalConfirmarTitulo">
+  <div class="modal-box">
+    <h3 id="modalConfirmarTitulo"><i class="fa-solid fa-circle-question"></i> Confirmar ação</h3>
+    <p id="modalConfirmarTexto"></p>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModalConfirmar()">Cancelar</button>
+      <button class="btn btn-primary" id="modalConfirmarBtn" onclick="executarConfirmacao()">Confirmar</button>
+    </div>
+  </div>
+</div>
+<!-- MODAL DE EDIÇÃO DE META -->
+<div class="modal-overlay hidden" id="modalEditarMeta" role="dialog" aria-modal="true" aria-labelledby="modalEditarMetaTitulo">
+  <div class="modal-box">
+    <h3 id="modalEditarMetaTitulo"><i class="fa-solid fa-pen"></i> Editar meta</h3>
+    <div class="field">
+      <label for="editMetaNome">Nome da meta</label>
+      <input type="text" id="editMetaNome">
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label for="editMetaIcone">Categoria</label>
+        <select id="editMetaIcone">
+          <option value="fa-car">🚗 Carro</option>
+          <option value="fa-house">🏠 Casa</option>
+          <option value="fa-plane">✈️ Viagem</option>
+          <option value="fa-graduation-cap">🎓 Estudos</option>
+          <option value="fa-umbrella-beach">🏖️ Férias</option>
+          <option value="fa-heart-pulse">🩺 Emergência</option>
+          <option value="fa-laptop">💻 Notebook</option>
+          <option value="fa-mobile-screen">📱 Celular</option>
+          <option value="fa-gift">🎁 Presente</option>
+          <option value="fa-piggy-bank">🐷 Outro</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="editMetaPrioridade">Prioridade</label>
+        <select id="editMetaPrioridade">
+          <option value="nao">Meta comum</option>
+          <option value="sim">⭐ Marcar como prioridade</option>
+        </select>
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label for="editMetaValorObjetivo">Valor objetivo</label>
+        <input type="text" inputmode="decimal" id="editMetaValorObjetivo" data-money>
+      </div>
+      <div class="field">
+        <label for="editMetaValorAtual" class="label-tip">Valor atual
+          <span class="tip-icon">i<span class="tip-bubble">Ajuste manual do valor atual. Para registrar um novo aporte, use o botão "+" no card da meta.</span></span>
+        </label>
+        <input type="text" inputmode="decimal" id="editMetaValorAtual" data-money>
+      </div>
+    </div>
+    <div class="row-2">
+      <div class="field">
+        <label for="editMetaData">Data prevista</label>
+        <input type="date" id="editMetaData">
+      </div>
+      <div class="field">
+        <label for="editMetaDescricao">Descrição</label>
+        <input type="text" id="editMetaDescricao">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModalEditarMeta()">Cancelar</button>
+      <button class="btn btn-primary" onclick="salvarEdicaoMeta()"><i class="fa-solid fa-check"></i> Salvar alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL DE HISTÓRICO DE APORTES DA META -->
+<div class="modal-overlay hidden" id="modalHistoricoMeta" role="dialog" aria-modal="true" aria-labelledby="modalHistoricoMetaTitulo">
+  <div class="modal-box">
+    <h3 id="modalHistoricoMetaTitulo"><i class="fa-solid fa-clock-rotate-left"></i> Histórico de aportes</h3>
+    <div class="timeline-meta" id="timelineMetaConteudo"></div>
+    <div class="modal-actions">
+      <button class="btn btn-outline" onclick="fecharModalHistoricoMeta()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOUR DE BOAS-VINDAS -->
+<div class="modal-overlay tour-overlay hidden" id="modalTour" role="dialog" aria-modal="true" aria-labelledby="tourTitulo">
+  <div class="modal-box tour-box">
+    <button type="button" class="tour-skip" onclick="fecharTour()">Pular <i class="fa-solid fa-xmark"></i></button>
+    <span class="tour-page-pill" id="tourPagePill"><i class="fa-solid fa-location-dot"></i> <span id="tourPageNome">Dashboard</span></span>
+    <div class="tour-icon" id="tourIcone"><i class="fa-solid fa-wallet"></i></div>
+    <h3 id="tourTitulo">Bem-vindo ao Meu Dinheiro</h3>
+    <p id="tourTexto"></p>
+    <div class="tour-dots" id="tourDots"></div>
+    <div class="modal-actions tour-actions">
+      <button class="btn btn-outline hidden" id="tourBtnVoltar" onclick="tourAnterior()"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+      <button class="btn btn-primary" id="tourBtnProximo" onclick="tourProximo()">Próximo <i class="fa-solid fa-arrow-right"></i></button>
+    </div>
+  </div>
+</div>
+
+<!-- IA FLUTUANTE — SUPORTE RÁPIDO EM QUALQUER TELA -->
+<button type="button" class="ia-fab" id="iaFloatBtn" onclick="abrirIAFlutuante()" title="Falar com a IA do Cofrinho">
+  <i class="fa-solid fa-robot"></i>
+</button>
+
+<div class="ia-float-panel hidden" id="iaFloatPanel" role="dialog" aria-modal="true" aria-labelledby="iaFloatTitulo">
+  <div class="ia-float-header">
+    <div class="ia-float-header-info">
+      <div class="ia-float-header-icon"><i class="fa-solid fa-robot"></i></div>
+      <div>
+        <div class="ia-float-title" id="iaFloatTitulo">IA do Cofrinho</div>
+        <div class="ia-float-subtitle">Suporte rápido</div>
+      </div>
+    </div>
+    <button type="button" class="ia-float-close" onclick="fecharIAFlutuante()" title="Fechar">
+      <i class="fa-solid fa-xmark"></i>
+    </button>
+  </div>
+
+  <div class="ia-no-key hidden" id="iaFloatNoKey">
+    <i class="fa-solid fa-key"></i>
+    <strong>Chave de API não configurada</strong>
+    <span>Vá em <strong>Configurações</strong> e insira sua chave para usar a IA do Cofrinho.</span>
+    <button class="btn btn-primary" style="width:auto;margin-top:6px;" onclick="irParaConfigViaFlutuante()"><i class="fa-solid fa-gear"></i> Ir para Configurações</button>
+  </div>
+
+  <div class="ia-chat-container ia-float-chat" id="iaFloatChatContainer">
+    <div class="ia-welcome" id="iaFloatWelcome">
+      <div class="ia-welcome-icon"><i class="fa-solid fa-robot"></i></div>
+      <div class="ia-welcome-title">Olá! Sou a IA do Cofrinho 👋</div>
+      <div class="ia-welcome-text">Posso responder perguntas e também atualizar seus dados. Experimente:</div>
+      <div class="ia-suggestions">
+        <button class="ia-suggestion" onclick="usarSugestao('Coloque mais 150 reais na minha meta Carro.', 'float')">🚗 Aportar na meta Carro</button>
+        <button class="ia-suggestion" onclick="usarSugestao('Em quanto tempo alcanço minha meta principal com o aporte mensal atual?', 'float')">⏱️ Quando alcanço minha meta?</button>
+        <button class="ia-suggestion" onclick="usarSugestao('Analise minha saúde financeira com base nos meus dados atuais.', 'float')">💊 Analise minha saúde financeira</button>
+      </div>
+    </div>
+    <div class="ia-messages" id="iaFloatMessages"></div>
+  </div>
+
+  <div class="ia-input-row" id="iaFloatInputRow">
+    <textarea id="iaFloatInput" class="ia-input" placeholder="Fale com a IA... (Enter para enviar)" rows="1"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagemIA('float');}"></textarea>
+    <button class="ia-send-btn" id="iaFloatSendBtn" onclick="enviarMensagemIA('float')" title="Enviar">
+      <i class="fa-solid fa-paper-plane"></i>
+    </button>
+  </div>
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
