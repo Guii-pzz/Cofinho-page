@@ -1249,6 +1249,159 @@ function atualizarInvestimento(saldoPreCalculado, totalDespesasPre) {
 /* =========================================================
    EXPORTAÇÃO PDF
    ========================================================= */
+
+// Paleta de cores do PDF, espelhando as variáveis de :root em style.css
+const PDF_CORES = {
+  primary: [15, 118, 110],
+  primaryDark: [13, 92, 86],
+  primaryLight: [230, 247, 245],
+  success: [5, 150, 105],
+  successBg: [236, 253, 245],
+  danger: [225, 29, 72],
+  dangerBg: [255, 241, 242],
+  warning: [217, 119, 6],
+  warningBg: [255, 251, 235],
+  text: [15, 23, 42],
+  muted: [100, 116, 139],
+  soft: [232, 239, 237],
+  line: [226, 232, 240],
+  white: [255, 255, 255],
+  zebra: [247, 250, 249]
+};
+
+function obterDimensoesPagina(doc) {
+  const width = doc.internal.pageSize.getWidth();
+  const height = doc.internal.pageSize.getHeight();
+  const margem = 14;
+  return { width, height, margem };
+}
+
+function obterResumoAtual() {
+  const totalDespesas = estado.despesas.reduce((soma, d) => soma + d.valor, 0);
+  const totalEntradas = obterTotalEntradas();
+  const rendaTotal = obterRendaTotal();
+  const saldoRestante = rendaTotal - totalDespesas;
+  const percentualInvestimento = estado.percentualInvestimento || 0;
+  const valorInvestido = saldoRestante > 0 ? saldoRestante * (percentualInvestimento / 100) : 0;
+  const valorDisponivel = saldoRestante > 0 ? saldoRestante - valorInvestido : saldoRestante;
+  const comprometimento = rendaTotal > 0 ? (totalDespesas / rendaTotal) * 100 : 0;
+  const pendentes = estado.despesas.filter(d => d.status !== 'Pago').length;
+  const pagas = estado.despesas.filter(d => d.status === 'Pago').length;
+
+  return {
+    totalDespesas,
+    totalEntradas,
+    rendaTotal,
+    saldoRestante,
+    valorInvestido,
+    valorDisponivel,
+    comprometimento,
+    pendentes,
+    pagas
+  };
+}
+
+function obterSaudeFinanceira(resumo) {
+  if (resumo.rendaTotal <= 0) {
+    return {
+      bg: PDF_CORES.soft,
+      cor: PDF_CORES.muted,
+      texto: 'Informe seu salário e cadastre despesas para ver sua saúde financeira.'
+    };
+  }
+
+  if (resumo.saldoRestante < 0) {
+    return {
+      bg: PDF_CORES.dangerBg,
+      cor: PDF_CORES.danger,
+      texto: `Atenção: despesas ultrapassam a renda em ${formatarMoeda(Math.abs(resumo.saldoRestante))}.`
+    };
+  }
+  if (resumo.comprometimento >= 90) {
+    return {
+      bg: PDF_CORES.warningBg,
+      cor: PDF_CORES.warning,
+      texto: `Cuidado: ${resumo.comprometimento.toFixed(0)}% da renda comprometido. Sobram ${formatarMoeda(resumo.saldoRestante)}.`
+    };
+  }
+  if (resumo.comprometimento >= 70) {
+    return {
+      bg: PDF_CORES.warningBg,
+      cor: PDF_CORES.warning,
+      texto: `Situação moderada: ${resumo.comprometimento.toFixed(0)}% comprometido. Saldo de ${formatarMoeda(resumo.saldoRestante)}.`
+    };
+  }
+  return {
+    bg: PDF_CORES.successBg,
+    cor: PDF_CORES.success,
+    texto: `Boa saúde financeira! ${resumo.comprometimento.toFixed(0)}% comprometido, ${formatarMoeda(resumo.saldoRestante)} disponíveis.`
+  };
+}
+
+function desenharCabecalhoPDF(doc, { mesReferencia, dataGeracao, landscape }) {
+  const { width, margem } = obterDimensoesPagina(doc);
+  const boxH = 24;
+
+  doc.setFillColor(...PDF_CORES.primary);
+  doc.rect(0, 0, width, boxH, 'F');
+
+  doc.setTextColor(...PDF_CORES.white);
+  doc.setFontSize(landscape ? 15 : 16);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Meu Dinheiro', margem, 14);
+
+  doc.setFontSize(9);
+  doc.setFont('helvetica', 'normal');
+  const subtitulo = mesReferencia ? `Relatório de ${formatarMesReferencia(mesReferencia)}` : 'Relatório financeiro';
+  doc.text(subtitulo, margem, 20);
+
+  doc.setFontSize(8);
+  doc.text(`Gerado em ${dataGeracao}`, width - margem, 20, { align: 'right' });
+
+  return boxH + 10;
+}
+
+function desenharTituloSecao(doc, y, titulo) {
+  const { width, margem } = obterDimensoesPagina(doc);
+
+  doc.setTextColor(...PDF_CORES.primaryDark);
+  doc.setFontSize(10.5);
+  doc.setFont('helvetica', 'bold');
+  doc.text(titulo, margem, y);
+
+  doc.setDrawColor(...PDF_CORES.line);
+  doc.setLineWidth(0.4);
+  doc.line(margem, y + 2, width - margem, y + 2);
+
+  return y + 8;
+}
+
+function desenharRodapePDF(doc, pagina, totalPaginas, { dataGeracao }) {
+  const { width, height, margem } = obterDimensoesPagina(doc);
+  const y = height - 8;
+
+  doc.setDrawColor(...PDF_CORES.line);
+  doc.setLineWidth(0.2);
+  doc.line(margem, y - 4, width - margem, y - 4);
+
+  doc.setTextColor(...PDF_CORES.muted);
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.text('Meu Dinheiro · Relatório financeiro pessoal', margem, y);
+  doc.text(`Gerado em ${dataGeracao}`, width / 2, y, { align: 'center' });
+  doc.text(`Página ${pagina} de ${totalPaginas}`, width - margem, y, { align: 'right' });
+}
+
+function abrirModalExportar() {
+  const mesInput = document.getElementById('exportMes');
+  if (mesInput) mesInput.value = estado.mesReferencia || '';
+  document.getElementById('modalExportar').classList.remove('hidden');
+}
+
+function fecharModalExportar() {
+  document.getElementById('modalExportar').classList.add('hidden');
+}
+
 function desenharCardsKPI(doc, y, resumo, landscape) {
   const { width, margem } = obterDimensoesPagina(doc);
   const usable = width - margem * 2;
