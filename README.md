@@ -4,9 +4,9 @@
 
 Transforme seus dados financeiros em informações úteis através de dashboards, metas, projeções, relatórios em PDF e interação por linguagem natural.
 
-🌐 **Demo:** https://SEU-LINK-AQUI
+🌐 **Demo:** [https://SEU-LINK-AQU](https://guii-pzz.github.io/Cofinho-page/)I
 
-📂 **Repositório:** https://SEU-LINK-AQUI
+📂 **Repositório:** [SEU-LINK-AQUI](https://github.com/Guii-pzz/Cofinho-page)
 
 ---
 
