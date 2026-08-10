@@ -213,10 +213,7 @@ cofrinho/
 ├── css/
 │   └── style.css
 ├── js/
-│   └── app.js
-├── assets/
-│   ├── images/
-│   └── icons/
+│   └── script.js
 └── README.md
 ```
 
