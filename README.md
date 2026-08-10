@@ -4,9 +4,9 @@
 
 Transforme seus dados financeiros em informações úteis através de dashboards, metas, projeções, relatórios em PDF e interação por linguagem natural.
 
-🌐 **Demo:** [https://SEU-LINK-AQU](https://guii-pzz.github.io/Cofinho-page/)I
+🌐 **Demo:** [https://guii-pzz.github.io/Cofinho-page/]
 
-📂 **Repositório:** [SEU-LINK-AQUI](https://github.com/Guii-pzz/Cofinho-page)
+📂 **Repositório:** [https://github.com/Guii-pzz/Cofinho-page]
 
 ---
 
@@ -73,7 +73,7 @@ Durante o desenvolvimento, o projeto evoluiu para uma solução que reúne contr
 
 # 🤖 Inteligência Artificial
 
-O Cofrinho possui um assistente financeiro integrado com múltiplos provedores de IA.
+O Cofrinho possui um assistente financeiro integrado com múltiplos provedores de IA, porém precisa de uma Chave Key para Utilização.
 
 ## Google Gemini
 
