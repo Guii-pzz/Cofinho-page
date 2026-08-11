@@ -11,9 +11,32 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="src/css/01-base.css">
+<link rel="stylesheet" href="src/css/02-layout.css">
+<link rel="stylesheet" href="src/css/03-componentes.css">
+<link rel="stylesheet" href="src/css/04-dashboard.css">
+<link rel="stylesheet" href="src/css/05-financas.css">
+<link rel="stylesheet" href="src/css/06-simulador.css">
+<link rel="stylesheet" href="src/css/07-metas.css">
+<link rel="stylesheet" href="src/css/08-historico.css">
+<link rel="stylesheet" href="src/css/09-ia.css">
+<link rel="stylesheet" href="src/css/10-config.css">
+<link rel="stylesheet" href="src/css/11-modals.css">
+<link rel="stylesheet" href="src/css/12-tour.css">
+<link rel="stylesheet" href="src/css/13-responsive.css">
+<link rel="stylesheet" href="src/css/14-dark-mode.css">
 </head>
 <body>
+<script>
+  // Aplica o modo escuro antes da pintura da página, evitando "flash" de tela clara
+  (function(){
+    try {
+      if (localStorage.getItem('cofrinho_dark_mode') === '1') {
+        document.body.classList.add('dark-mode');
+      }
+    } catch(e){}
+  })();
+</script>
 
 <div id="toast-container"></div>
 
@@ -34,6 +57,10 @@
           <i class="fa-solid fa-xmark"></i> Sair
         </button>
       </div>
+      <button class="btn btn-dark-toggle" onclick="alternarModoEscuro()" id="btnDarkToggle" title="Alternar modo escuro">
+        <i class="fa-solid fa-moon"></i>
+        <i class="fa-solid fa-sun"></i>
+      </button>
       <button class="btn btn-ghost" onclick="abrirTour()" title="Ver tour de boas-vindas">
         <i class="fa-solid fa-circle-question"></i> <span class="btn-text">Ajuda</span>
       </button>
@@ -629,6 +656,17 @@
   <div class="page" id="page-config">
     <div class="panel full-width">
       <h2><i class="fa-solid fa-palette"></i> Personalização de cores</h2>
+      <div class="config-list" style="margin-bottom:18px;">
+        <div class="config-item">
+          <div class="info">
+            <div class="t">Modo escuro</div>
+            <div class="d">Deixa o fundo do app e todas as telas em tons escuros.</div>
+          </div>
+          <button type="button" class="dark-switch" id="darkSwitch" onclick="alternarModoEscuro()" role="switch" aria-checked="false" title="Alternar modo escuro">
+            <span class="dark-switch-knob"></span>
+          </button>
+        </div>
+      </div>
       <div class="config-color-section">
         <div class="config-color-group">
           <div class="config-color-label"><i class="fa-solid fa-circle-half-stroke"></i> Cor primária</div>
@@ -644,10 +682,9 @@
           </div>
         </div>
         <div class="config-color-group">
-          <div class="config-color-label"><i class="fa-solid fa-moon"></i> Fundo do app</div>
+          <div class="config-color-label"><i class="fa-solid fa-fill-drip"></i> Fundo do app (modo claro)</div>
           <div class="color-chips" id="colorChipsBg">
             <button class="color-chip-bg active" data-bg="#f3f6f5" data-bg-accent="#e8efed" data-card-bg="rgba(255,255,255,0.88)" data-card-solid="#ffffff" style="background:linear-gradient(135deg,#f3f6f5,#e8efed)" title="Claro (padrão)"></button>
-            <button class="color-chip-bg" data-bg="#0f172a" data-bg-accent="#1e293b" data-card-bg="rgba(30,41,59,0.95)" data-card-solid="#1e293b" style="background:linear-gradient(135deg,#0f172a,#1e293b)" title="Escuro (Dark)"></button>
             <button class="color-chip-bg" data-bg="#fdf8f0" data-bg-accent="#f5ede0" data-card-bg="rgba(255,252,245,0.92)" data-card-solid="#fffcf5" style="background:linear-gradient(135deg,#fdf8f0,#f5ede0)" title="Bege"></button>
             <button class="color-chip-bg" data-bg="#f0f4ff" data-bg-accent="#e0e9ff" data-card-bg="rgba(240,244,255,0.92)" data-card-solid="#f8faff" style="background:linear-gradient(135deg,#f0f4ff,#e0e9ff)" title="Azul claro"></button>
             <button class="color-chip-bg" data-bg="#f0fdf4" data-bg-accent="#dcfce7" data-card-bg="rgba(240,253,244,0.92)" data-card-solid="#f7fdf9" style="background:linear-gradient(135deg,#f0fdf4,#dcfce7)" title="Verde claro"></button>
@@ -720,6 +757,15 @@
           <button class="btn btn-ghost" onclick="abrirModalLimpar()">
             <i class="fa-solid fa-rotate-left"></i> Reiniciar
           </button>
+        </div>
+        <div class="config-item">
+          <div class="info">
+            <div class="t">Sugestões e melhorias</div>
+            <div class="d">Encontrou um bug ou tem uma ideia para o Cofrinho? Me conta!</div>
+          </div>
+          <a class="btn btn-ghost" href="https://forms.gle/Mof6zWLr7HdQRRUD9" target="_blank" rel="noopener noreferrer">
+            <i class="fa-solid fa-comment-dots"></i> Enviar sugestão
+          </a>
         </div>
       </div>
     </div>
@@ -973,7 +1019,20 @@
   </div>
 </div>
 
-<script src="script.js"></script>
+<script src="src/js/01-estado-core.js"></script>
+<script src="src/js/02-modo-demo.js"></script>
+<script src="src/js/03-historico.js"></script>
+<script src="src/js/04-financas.js"></script>
+<script src="src/js/05-resumo-simulador.js"></script>
+<script src="src/js/06-pdf-export.js"></script>
+<script src="src/js/07-navegacao-ui.js"></script>
+<script src="src/js/08-metas.js"></script>
+<script src="src/js/09-dashboard-graficos.js"></script>
+<script src="src/js/10-tour.js"></script>
+<script src="src/js/11-ia-assistente.js"></script>
+<script src="src/js/12-ia-flutuante.js"></script>
+<script src="src/js/13-tema.js"></script>
+<script src="src/js/14-main-init.js"></script>
 
 </body>
 </html>
