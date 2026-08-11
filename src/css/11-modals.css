@@ -1,0 +1,125 @@
+/* =========================================================
+   11-modals.css
+   Toast de feedback e modais (overlay/box) genéricos.
+   ========================================================= */
+
+  /* Toast */
+  #toast-container{
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .toast{
+    background: var(--surface-inverse);
+    color: #fff;
+    padding: 13px 18px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0,0,0,.18);
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    min-width: 260px;
+    max-width: 360px;
+    animation: slideIn .3s ease;
+  }
+  .toast.error{ background: var(--danger); }
+  .toast.success{ background: var(--success); }
+  .toast i{ font-size: 16px; flex-shrink: 0; }
+
+
+  /* Modal */
+  .modal-overlay{
+    position: fixed;
+    inset: 0;
+    background: rgba(20,22,30,0.55);
+    backdrop-filter: blur(4px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 999;
+    padding: 20px;
+    animation: fadeIn .2s ease;
+  }
+  .modal-box{
+    background: var(--modal-bg);
+    border-radius: var(--radius);
+    padding: 26px;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.22);
+    animation: scaleIn .25s ease;
+  }
+  .modal-box h3{
+    margin-bottom: 18px;
+    display:flex;
+    align-items:center;
+    gap: 10px;
+    font-size: 17px;
+    font-weight: 700;
+  }
+  .modal-box h3 i{ color: var(--primary); }
+  .modal-box p{
+    font-size: 14px;
+    color: var(--text-muted);
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+  .modal-actions{
+    display:flex;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .modal-actions .btn{ flex: 1; }
+  .field-hint{
+    display:block;
+    font-size: 11.5px;
+    color: #a0a6b8;
+    margin-top: 6px;
+    line-height: 1.4;
+  }
+  .orient-options{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .orient-card{
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    gap: 8px;
+    padding: 16px 12px;
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+    text-align:center;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+  .orient-card input{ display:none; }
+  .orient-card i{ font-size: 22px; color: var(--primary); }
+  .orient-card:has(input:checked){
+    border-color: var(--primary);
+    background: var(--primary-light);
+    color: var(--primary);
+  }
+  .mes-badge{
+    display:inline-flex;
+    align-items:center;
+    gap: 6px;
+    margin-top: 10px;
+    padding: 6px 12px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .hidden{ display: none !important; }
+

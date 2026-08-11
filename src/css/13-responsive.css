@@ -1,0 +1,237 @@
+/* =========================================================
+   13-responsive.css
+   Ajustes de layout para telas menores (media queries).
+   ========================================================= */
+
+  /* Responsivo */
+  @media (max-width: 900px){
+    .cards-grid{ grid-template-columns: repeat(2, 1fr); }
+    .main-grid{ grid-template-columns: 1fr; }
+    .historico-grid{ grid-template-columns: repeat(2, 1fr); }
+  }
+
+  @media (max-width: 640px){
+    .app{
+      padding: 16px 14px 48px;
+      padding-left: max(14px, env(safe-area-inset-left));
+      padding-right: max(14px, env(safe-area-inset-right));
+      padding-bottom: max(48px, env(safe-area-inset-bottom));
+    }
+
+    header.top{
+      flex-direction: column;
+      align-items: stretch;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .header-actions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      width: 100%;
+    }
+
+    .demo-badge{
+      order: -1;
+      flex: 1 1 100%;
+      justify-content: center;
+    }
+
+    .header-actions .btn{
+      flex: 1 1 90px;
+      padding: 11px 6px;
+      font-size: 12px;
+      min-height: 44px;
+      justify-content: center;
+    }
+
+    .header-actions .btn-text{ display: none; }
+
+    .health-banner{
+      padding: 12px 14px;
+      font-size: 13px;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .health-banner i{ font-size: 18px; margin-top: 1px; }
+
+    .budget-bar-wrap{ padding: 14px 16px; margin-bottom: 18px; }
+    .budget-bar-header{
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .cards-grid{
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .indicator-card{
+      padding: 14px;
+      gap: 8px;
+    }
+
+    .indicator-card:hover{ transform: none; }
+
+    .indicator-card .icon-badge{
+      width: 34px;
+      height: 34px;
+      font-size: 14px;
+    }
+
+    .indicator-card .label{ font-size: 10px; }
+    .indicator-card .value{ font-size: 17px; }
+    .indicator-card .sub{ font-size: 11px; }
+
+    .panel{
+      padding: 16px;
+      margin-bottom: 14px;
+      border-radius: 14px;
+    }
+
+    .panel h2{ font-size: 15px; margin-bottom: 14px; }
+
+    .row-2{ grid-template-columns: 1fr; gap: 0; }
+
+    .field input, .field select{
+      font-size: 16px;
+      padding: 13px 14px;
+    }
+
+    .resumo-item .val{ font-size: 15px; }
+    .resumo-item.saldo .val{ font-size: 17px; }
+
+    .btn-icon{
+      width: 40px;
+      height: 40px;
+    }
+
+    .salario-display{
+      padding: 16px;
+      margin-top: 14px;
+    }
+
+    .salario-display .val{ font-size: 22px; }
+    .salario-display i{ font-size: 24px; }
+
+    .entrada-display{
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .entrada-display .val{ font-size: 18px; }
+    .entrada-display i{ font-size: 20px; }
+
+    .panel-header-row{
+      flex-direction: column;
+      align-items: stretch;
+      gap: 10px;
+    }
+
+    .panel-header-row .btn-export{
+      width: 100%;
+      justify-content: center;
+      min-height: 44px;
+    }
+
+    .table-wrapper.table-desktop{ display: none; }
+    .despesas-mobile{ display: flex; }
+
+    .invest-header{
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .invest-header .perc{ font-size: 26px; }
+
+    .invest-results{ grid-template-columns: 1fr; }
+
+    .total-despesas-bar{
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 4px;
+    }
+
+    .modal-box{
+      padding: 20px 18px;
+      max-height: 92dvh;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .orient-options{ grid-template-columns: 1fr; }
+
+    .historico-grid{ grid-template-columns: 1fr; }
+    .historico-toolbar{ flex-direction: column; align-items: stretch; }
+    .historico-actions{ width: 100%; }
+    .historico-actions .btn-arquivar{ width: 100%; }
+    .view-toggle{ width: 100%; }
+    .view-toggle button{ flex: 1; }
+    .historico-card:hover{ transform: none; }
+
+    #toast-container{
+      left: 14px;
+      right: 14px;
+      top: max(14px, env(safe-area-inset-top));
+    }
+
+    .toast{ min-width: unset; max-width: unset; }
+  }
+
+  @media (max-width: 380px){
+    header.top .brand h1{ font-size: 17px; }
+    header.top .brand .logo{ width: 42px; height: 42px; font-size: 18px; }
+    .indicator-card .value{ font-size: 15px; }
+    .despesa-card-grid{ grid-template-columns: 1fr; }
+  }
+
+
+/* =========================================================
+   RESPONSIVO — NOVOS COMPONENTES
+   ========================================================= */
+@media (max-width: 900px){
+  .hero-grid{ grid-template-columns: repeat(2, 1fr); }
+  .dash-grid{ grid-template-columns: 1fr; }
+}
+@media (max-width: 640px){
+  .hero-grid{ grid-template-columns: 1fr 1fr; gap: 10px; }
+  .hero-card{ padding: 14px; }
+  .hero-card .h-value{ font-size: 18px; }
+  .hero-card .h-icon{ font-size: 16px; top: 14px; right: 14px; }
+  .chart-card{ padding: 16px; }
+  .chart-wrap{ height: 220px; }
+  .chart-wrap.small{ height: 180px; }
+  .tabnav{ justify-content: flex-start; padding: 5px; gap: 4px; }
+  .tabnav button{ padding: 11px 12px; font-size: 12px; min-height: 44px; gap: 6px; }
+  .metas-grid{ grid-template-columns: 1fr; }
+  .meta-aporte-form{ flex-direction: column; }
+  .meta-card-toolbar{ flex-direction: column; }
+  .meta-stats-grid{ gap: 6px; }
+  .meta-stat{ padding: 8px 9px; }
+  .meta-stat .val{ font-size: 12.5px; }
+  .config-item{ flex-direction: column; align-items: flex-start; }
+  .dash-meta-mini{ padding: 9px; gap: 10px; }
+  .dash-meta-mini-top .nome{ font-size: 12.5px; }
+  .modal-actions{ flex-direction: column-reverse; }
+  .modal-actions .btn{ width: 100%; justify-content: center; }
+  .modal-actions.tour-actions{ flex-direction: row; }
+  .modal-actions.tour-actions .btn{ width: auto; }
+}
+@media (max-width: 460px){
+  .tabnav button .tab-label{ display: none; }
+  .tabnav button{ padding: 12px; }
+  .tabnav button i{ font-size: 16px; }
+}
+@media (max-width: 380px){
+  .hero-grid{ grid-template-columns: 1fr 1fr; gap: 8px; }
+  .hero-card{ padding: 12px; }
+  .hero-card .h-label{ font-size: 10.5px; }
+  .hero-card .h-value{ font-size: 15px; }
+  .hero-card .h-sub{ font-size: 11px; }
+  .meta-stats-grid{ grid-template-columns: 1fr 1fr; }
+}
+

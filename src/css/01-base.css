@@ -1,0 +1,68 @@
+/* =========================================================
+   01-base.css
+   Variáveis de tema (:root), reset e estilos base do body/container .app.
+   ========================================================= */
+
+  :root{
+    --bg: #f3f6f5;
+    --bg-accent: #e8efed;
+    --card-bg: rgba(255,255,255,0.88);
+    --card-solid: #ffffff;
+    --primary: #0f766e;
+    --primary-dark: #0d5c56;
+    --primary-mid: #14b8a6;
+    --primary-light: #e6f7f5;
+    --success: #059669;
+    --success-bg: #ecfdf5;
+    --danger: #e11d48;
+    --danger-bg: #fff1f2;
+    --warning: #d97706;
+    --warning-bg: #fffbeb;
+    --text-main: #0f172a;
+    --text-muted: #64748b;
+    --border: #e2e8f0;
+    --shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
+    --shadow-hover: 0 4px 12px rgba(15, 23, 42, 0.06), 0 16px 40px rgba(15, 118, 110, 0.1);
+    --radius: 20px;
+    --radius-sm: 14px;
+    --ring: rgba(15, 118, 110, 0.18);
+
+    /* Superfícies neutras (usadas por inputs, hovers, tabelas, modais etc.) */
+    --input-bg: #f8fafb;
+    --input-bg-focus: #ffffff;
+    --hover-bg: #f0fafa;
+    --track-bg: #e8eef0;
+    --glass: rgba(255,255,255,0.75);
+    --glass-soft: rgba(255,255,255,0.7);
+    --glass-soft-2: rgba(255,255,255,0.6);
+    --modal-bg: #ffffff;
+    --toggle-bg: #f1f5f4;
+    --toggle-active-bg: #ffffff;
+    --danger-bg-hover: #ffe4e6;
+    --border-strong: #cbd5e1;
+    --surface-inverse: #0f172a;
+    --anual-gradient: linear-gradient(180deg, #f0fdfa 0%, #f8fafb 100%);
+    --body-gradient:
+      radial-gradient(ellipse 90% 55% at 0% -5%, rgba(20,184,166,0.14), transparent 55%),
+      radial-gradient(ellipse 70% 45% at 100% 0%, rgba(5,150,105,0.1), transparent 50%),
+      linear-gradient(180deg, #f7faf9 0%, #f1f5f4 100%);
+  }
+
+  *{ box-sizing: border-box; margin:0; padding:0; }
+
+  body{
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg);
+    background-image: var(--body-gradient);
+    color: var(--text-main);
+    min-height: 100vh;
+    padding-bottom: 40px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app{
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 28px 20px 60px;
+  }
+

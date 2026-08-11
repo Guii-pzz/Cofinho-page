@@ -1,0 +1,93 @@
+/* =========================================================
+   14-dark-mode.css
+   Switch de alternância e todas as sobrescritas de variáveis do Modo Escuro.
+   ========================================================= */
+
+   MODO ESCURO (DARK MODE)
+   ========================================================= */
+body, .panel, .indicator-card, .budget-bar-wrap, .modal-box, .field input,
+.field select, .entrada-item, .despesa-card, .resumo-item, .historico-card,
+.historico-metric, .check-field {
+  transition: background-color .25s ease, background-image .25s ease, border-color .25s ease, color .25s ease;
+}
+
+.btn-dark-toggle{
+  background: var(--card-solid);
+  border: 1.5px solid var(--border);
+  color: var(--text-muted);
+  width: 42px; height: 42px;
+  padding: 0;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.btn-dark-toggle:hover{ background: var(--primary-light); color: var(--primary); border-color: var(--primary); }
+.btn-dark-toggle .fa-sun{ display: none; }
+body.dark-mode .btn-dark-toggle .fa-sun{ display: inline-block; }
+body.dark-mode .btn-dark-toggle .fa-moon{ display: none; }
+
+body.dark-mode{
+  --bg: #0f172a;
+  --bg-accent: #1e293b;
+  --card-bg: rgba(30,41,59,0.92);
+  --card-solid: #1e293b;
+  --text-main: #f1f5f9;
+  --text-muted: #94a3b8;
+  --border: #334155;
+
+  --primary-light: rgba(20,184,166,0.16);
+  --success-bg: rgba(5,150,105,0.16);
+  --danger-bg: rgba(225,29,72,0.16);
+  --danger-bg-hover: rgba(225,29,72,0.26);
+  --warning-bg: rgba(217,119,6,0.16);
+
+  --input-bg: #16223a;
+  --input-bg-focus: #1c2b45;
+  --hover-bg: rgba(255,255,255,0.045);
+  --track-bg: #334155;
+  --glass: rgba(255,255,255,0.07);
+  --glass-soft: rgba(255,255,255,0.06);
+  --glass-soft-2: rgba(255,255,255,0.05);
+  --modal-bg: #182338;
+  --toggle-bg: #16223a;
+  --toggle-active-bg: #2c3e58;
+  --border-strong: #475569;
+  --surface-inverse: #334155;
+  --anual-gradient: linear-gradient(180deg, rgba(20,184,166,0.12) 0%, #16223a 100%);
+  --body-gradient:
+    radial-gradient(ellipse 90% 55% at 0% -5%, rgba(20,184,166,0.10), transparent 55%),
+    radial-gradient(ellipse 70% 45% at 100% 0%, rgba(5,150,105,0.08), transparent 50%),
+    linear-gradient(180deg, #0b1220 0%, #0f172a 100%);
+
+  --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px rgba(0,0,0,0.28);
+  --shadow-hover: 0 4px 12px rgba(0,0,0,0.32), 0 16px 40px rgba(0,0,0,0.3);
+}
+
+/* Scrollbar no dark mode */
+body.dark-mode ::-webkit-scrollbar{ width: 10px; height: 10px; }
+body.dark-mode ::-webkit-scrollbar-track{ background: transparent; }
+body.dark-mode ::-webkit-scrollbar-thumb{ background: #334155; border-radius: 20px; }
+body.dark-mode ::-webkit-scrollbar-thumb:hover{ background: #475569; }
+
+/* Switch do Modo Escuro */
+.dark-switch{
+  position: relative;
+  width: 50px; height: 28px;
+  border-radius: 20px;
+  border: none;
+  background: var(--track-bg);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background .25s ease;
+}
+.dark-switch-knob{
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+  transition: transform .25s cubic-bezier(.22,1,.36,1);
+}
+.dark-switch[aria-checked="true"]{ background: var(--primary); }
+.dark-switch[aria-checked="true"] .dark-switch-knob{ transform: translateX(22px); }
